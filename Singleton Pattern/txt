@@ -1,0 +1,206 @@
+Singleton Pattern (Design Pattern)
+1.	What is the Singleton Pattern?
+The Singleton Pattern is a creational design pattern that ensures:
+
+Only one instance of a class exists throughout the application, and provides a global point of access to it.
+
+Key Properties:
+●	Single instance (only one object is created)
+●	Global access point (accessible from anywhere)
+
+
+2.	Motivation (Why is it needed?)
+In many real-world scenarios, creating multiple instances of a class can cause problems such as:
+🔹 Resource Conflicts
+●	Example: Database connection pool
+●	Multiple instances → excessive connections → system crash
+🔹 Inconsistent State
+●	Example: Configuration manager
+●	Different instances → different configurations → bugs
+🔹 Performance Overhead
+●	Creating heavy objects repeatedly is expensive
+
+
+3.	Real-World Examples
+✔ Example 1: Database Connection Manager
+ 
+●	Only one connection manager should exist
+●	Prevents unnecessary connections
+
+✔ Example 2: Logger
+●	One logging system across the application
+●	Ensures consistent logs
+
+✔ Example 3: Configuration Settings
+●	One shared configuration instance
+●	Avoids mismatch across modules
+
+
+4.	Basic Implementation Idea
+To implement Singleton:
+
+1.	Make constructor private
+2.	Create a static instance
+3.	Provide a public method to access it
+
+
+5.	Different Ways to Implement Singleton in Java
+
+
+5.1	Eager Initialization
+class Singleton {
+private static final Singleton instance = new Singleton(); private Singleton() {}
+public static Singleton getInstance() { return instance;
+}
+}
+✅ Pros:
+●	Simple
+ 
+●	Thread-safe (class loading guarantees it)
+❌ Cons:
+●	Instance created even if not used
+●	Wastes memory if unused
+
+
+5.2	Lazy Initialization (Not Thread-Safe)
+class Singleton {
+private static Singleton instance; private Singleton() {}
+public static Singleton getInstance() { if (instance == null) {
+instance = new Singleton();
+}
+return instance;
+}
+}
+✅ Pros:
+●	Instance created only when needed
+❌ Cons:
+●	Not thread-safe
+●	Multiple instances possible in multithreaded systems
+
+
+5.3	Thread-Safe (Synchronized Method)
+class Singleton {
+private static Singleton instance; private Singleton() {}
+public static synchronized Singleton getInstance() { if (instance == null) {
+instance = new Singleton();
+ 
+}
+return instance;
+}
+}
+✅ Pros:
+●	Thread-safe
+❌ Cons:
+●	Slow (synchronization overhead on every call)
+
+
+5.4	Double-Checked Locking (Efficient Thread-Safe)
+class Singleton {
+private static volatile Singleton instance; private Singleton() {}
+public static Singleton getInstance() { if (instance == null) {
+synchronized (Singleton.class) { if (instance == null) {
+instance = new Singleton();
+}
+}
+}
+return instance;
+}
+}
+✅ Pros:
+●	Thread-safe
+●	Better performance than full synchronization
+❌ Cons:
+●	More complex
+●	Requires volatile keyword (important!)
+ 
+ 
+5.5	Bill Pugh (Static Inner Class) ⭐ (Recommended)
+class Singleton { private Singleton() {}
+private static class Holder {
+private static final Singleton instance = new Singleton();
+}
+
+public static Singleton getInstance() { return Holder.instance;
+}
+}
+✅ Pros:
+●	Lazy initialization
+●	Thread-safe (JVM guarantees)
+●	No synchronization overhead
+❌ Cons:
+●	Slightly less intuitive for beginners
+
+5.6	Enum Singleton (Best Practice) ⭐⭐⭐
+enum Singleton { INSTANCE;
+
+public void showMessage() { System.out.println("Hello Singleton");
+}
+}
+
+Usage:
+Singleton.INSTANCE.showMessage();
+✅ Pros:
+ 
+●	Simplest and safest
+●	Thread-safe by default
+●	Protects against:
+○	Serialization issues
+○	Reflection attacks
+❌ Cons:
+●	Less flexible (cannot extend classes)
+
+
+6.	Example: Database Connection Singleton
+class DatabaseConnection {
+private static DatabaseConnection instance; private DatabaseConnection() {
+System.out.println("Connecting to database...");
+}
+
+public static DatabaseConnection getInstance() { if (instance == null) {
+instance = new DatabaseConnection();
+}
+return instance;
+}
+
+public void query(String sql) { System.out.println("Executing: " + sql);
+}
+}
+
+Usage:
+public class Main {
+public static void main(String[] args) {
+DatabaseConnection db1 = DatabaseConnection.getInstance(); DatabaseConnection db2 = DatabaseConnection.getInstance();
+
+System.out.println(db1 == db2); // true
+
+db1.query("SELECT * FROM users");
+}
+ 
+}
+
+
+7.	Summary Table
+
+Method	Thread Safe	Lazy	Performance	Complexity
+Eager Initialization	✅	❌	High	Low
+Lazy (basic)	❌	✅	High	Low
+Synchronized Method	✅	✅	Low	Low
+Double-Checked Locking	✅	✅	High	Medium
+Bill Pugh	✅	✅	High	Medium
+Enum	✅	✅	High	Low
+
+
+8.	When to Use Singleton
+Use Singleton when:
+
+●	You need exactly one instance
+●	Shared resource (e.g., DB, logger)
+●	Centralized control is required
+
+
+9.	When NOT to Use
+Avoid Singleton when:
+
+●	You need multiple instances later (rigid design)
+●	It makes testing difficult (global state)
+●	Hidden dependencies reduce modularity
