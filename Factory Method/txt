@@ -1,0 +1,295 @@
+Factory Method Pattern Notes
+1. Definition
+
+The Factory Method is a creational design pattern used to create objects without directly using constructors everywhere in the code.
+
+Instead of:
+
+car = Car()
+
+we use a factory method:
+
+vehicle = factory.create_vehicle()
+
+The object creation responsibility is delegated to another class/method.
+
+2. Main Idea
+
+Factory Method means:
+
+“Create objects through a method instead of directly calling constructors.”
+
+Or more specifically:
+
+“Let subclasses decide which object to create.”
+
+3. Why Do We Need It?
+
+Without Factory Method, programs often become filled with:
+
+if type == "email":
+    obj = EmailNotification()
+
+elif type == "sms":
+    obj = SMSNotification()
+
+Problems:
+
+Too many if-else statements
+Hard to maintain
+Tight coupling
+Difficult to extend
+4. Real-Life Analogy
+Restaurant Example
+
+At a restaurant:
+
+You request food
+The kitchen prepares it
+
+You do NOT cook it yourself.
+
+The kitchen acts as the factory.
+
+5. Structure of Factory Method
+
+The pattern usually contains:
+
+Component	Purpose
+Product	Common interface/base class
+Concrete Products	Actual objects created
+Creator	Superclass containing factory method
+Concrete Creators	Subclasses deciding which object to create
+6. Example Structure
+Step 1 — Product Interface
+from abc import ABC, abstractmethod
+
+class Notification(ABC):
+
+    @abstractmethod
+    def send(self):
+        pass
+Step 2 — Concrete Products
+class EmailNotification(Notification):
+
+    def send(self):
+        print("Sending Email")
+
+
+class SMSNotification(Notification):
+
+    def send(self):
+        print("Sending SMS")
+Step 3 — Creator Superclass
+class NotificationCreator(ABC):
+
+    @abstractmethod
+    def factory_method(self):
+        pass
+
+    def notify(self):
+        notification = self.factory_method()
+        notification.send()
+Important:
+
+NotificationCreator is the:
+
+superclass
+parent class
+base class
+Step 4 — Concrete Creators
+class EmailCreator(NotificationCreator):
+
+    def factory_method(self):
+        return EmailNotification()
+
+
+class SMSCreator(NotificationCreator):
+
+    def factory_method(self):
+        return SMSNotification()
+
+These are subclasses of NotificationCreator.
+
+Step 5 — Usage
+creator = EmailCreator()
+creator.notify()
+
+Output:
+
+Sending Email
+7. How It Works Internally
+
+Suppose:
+
+creator = EmailCreator()
+creator.notify()
+Flow:
+Step 1
+
+notify() is inherited from superclass:
+
+NotificationCreator
+Step 2
+
+Inside notify():
+
+notification = self.factory_method()
+
+Since self is EmailCreator,
+Python calls:
+
+EmailCreator.factory_method()
+Step 3
+
+This returns:
+
+EmailNotification()
+Step 4
+
+Then:
+
+notification.send()
+
+calls:
+
+EmailNotification.send()
+8. Core Concept
+
+The superclass knows:
+
+HOW to use the object
+
+But subclasses decide:
+
+WHICH object gets created
+
+This is the essence of Factory Method.
+
+9. Advantages
+A. Reduces if-else
+
+Instead of:
+
+if type == ...
+
+we use polymorphism.
+
+B. Loose Coupling
+
+Main code depends on:
+
+Notification
+
+NOT on:
+
+EmailNotification
+SMSNotification
+C. Easier to Extend
+
+Adding a new notification type:
+
+class WhatsAppNotification(Notification):
+
+requires minimal code changes.
+
+D. Follows Open/Closed Principle
+
+Software should be:
+
+Open for extension
+Closed for modification
+
+Factory Method supports this.
+
+E. Centralized Object Creation
+
+Creation logic stays in one place.
+
+10. Polymorphism in Factory Method
+
+The superclass works with all subclasses uniformly.
+
+Example:
+
+creator = SMSCreator()
+creator.notify()
+
+No change needed in superclass code.
+
+This is polymorphism.
+
+11. Simple Factory vs Factory Method
+Simple Factory
+
+Usually:
+
+One factory class
+One method
+Uses many if-else
+
+Example:
+
+NotificationFactory.create_notification("sms")
+Factory Method
+
+Uses:
+
+inheritance
+abstract methods
+polymorphism
+
+Subclasses override factory methods.
+
+12. When To Use Factory Method
+
+Use it when:
+
+✅ many object types exist
+
+✅ object creation becomes complex
+
+✅ you want flexible/extensible code
+
+✅ you repeatedly use large if-else chains
+
+✅ you want loose coupling
+
+13. When NOT To Use It
+
+Avoid it for very small/simple programs.
+
+Example:
+
+dog = Dog()
+
+does not need a factory.
+
+Factory Method adds extra abstraction and classes.
+
+14. Visual Summary
+Without Factory Method
+Main Code
+   |
+   |----> Car()
+   |----> Bike()
+   |----> Truck()
+
+Main code knows everything.
+
+With Factory Method
+Main Code
+   |
+   ---> Factory
+            |
+            |----> Car()
+            |----> Bike()
+            |----> Truck()
+
+Main code only communicates with the factory.
+
+15. Final Intuition
+
+Factory Method is basically:
+
+“Instead of creating objects directly, delegate creation responsibility to specialized methods/classes.”
